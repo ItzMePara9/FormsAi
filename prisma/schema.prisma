@@ -1,0 +1,112 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  passwordHash String
+  name         String
+  role         String    @default("admin")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model AIProvider {
+  id               String   @id @default(uuid())
+  name             String
+  providerType     String   // "openai" | "gemini" | "custom_openai"
+  baseUrl          String?
+  encryptedApiKey  String
+  modelId          String
+  modelNickname    String
+  customSettings   String?  // JSON string for temperature, topP
+  isDefault        Boolean  @default(false)
+  isEnabled        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model GoogleConnection {
+  id                     String    @id @default(uuid())
+  email                  String
+  encryptedRefreshToken  String?
+  encryptedAccessToken   String?
+  accessTokenExpiresAt   DateTime?
+  scopes                 String?
+  isConnected            Boolean   @default(true)
+  connectedAt            DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
+
+model Form {
+  id            String        @id @default(uuid())
+  title         String
+  description   String?
+  language      String        @default("en")
+  schemaJson    String        // Complete Form schema as JSON
+  status        String        @default("draft") // "draft" | "published" | "failed"
+  googleFormId  String?
+  googleFormUrl String?
+  googleEditUrl String?
+  modelUsed     String?
+  version       Int           @default(1)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  versions      FormVersion[]
+}
+
+model FormVersion {
+  id          String   @id @default(uuid())
+  formId      String
+  form        Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  version     Int
+  title       String
+  description String?
+  schemaJson  String
+  changeNotes String?
+  createdAt   DateTime @default(now())
+}
+
+model FormTemplate {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String
+  tags        String?
+  schemaJson  String
+  isBuiltIn   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  details   String?
+  entityId  String?
+  createdAt DateTime @default(now())
+}
+
+model ApplicationSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,6 @@
+{
+  "name": "FormGenius AI",
+  "description": "Self-hosted AI Google Forms builder. Generate, customize, and publish professional Google Forms with AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
